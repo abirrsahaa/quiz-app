@@ -7,6 +7,14 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
+
+// !frontend additions in ui 
+  // !auth ui
+  // !exams -> subjects -> start quiz 
+  // !toast notifications 
+  // !dashboards for analytics 
+  // !user profile 
+
 export default function QuizPage() {
 
     // !idhar mera logic lagega as i am coding with first principles and will eventually scale with each day
@@ -51,26 +59,33 @@ export default function QuizPage() {
                     setQuestion(data.question);
                     break;
                 case "END_QUIZ":
+                    alert("Quiz has ended");
                     setQuestion(null);
                     break;
             }
         }
     },[socket])
-
+    
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [isAnswered,SetisAnswered]=useState<boolean | undefined>(undefined);
-
-
-
-
-
+    useEffect(()=>{
+      if(!socket)return;
+      if(selectedAnswer === null) return;
+      socket?.send(JSON.stringify({
+        type:"ANSWERED",
+        question:question,
+        answer:selectedAnswer
+      }))
+    },[selectedAnswer,question,socket])
 
 
   const handleAnswerSelect = (optionId: string) => {
     if (isAnswered) return;
     setSelectedAnswer(optionId);
     SetisAnswered(true);
+  
   }
+
 
   const handleNext = (socket:WebSocket) => {
 
@@ -97,7 +112,7 @@ export default function QuizPage() {
   
   }
 
-//   !i am fucking this up else it is working lit 
+
   const getOptionStyle = (optionId: string) => {
     console.log('selectedAnswer:', selectedAnswer)
     console.log('optionId:', optionId)
