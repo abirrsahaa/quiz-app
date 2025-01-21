@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
+
+
 
 export function Navbar() {
   return (
@@ -24,6 +26,8 @@ export function Navbar() {
           <Button asChild>
             <Link to="/sign-up">Sign Up</Link>
           </Button>
+          
+
         </div>
       </div>
     </nav>

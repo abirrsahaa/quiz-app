@@ -1,3 +1,5 @@
+
+// !this is a pure mathematics based util so figure it out 
 import { Types } from 'mongoose';
 
 // Update interface to match actual data structure
@@ -41,10 +43,11 @@ interface MasteryResult {
 }
 
 export class TopicMasteryDetermination {
+    // !this is the data which i would be tweaking for better quiz performance and control
     private readonly MASTERY_THRESHOLDS = {
         minMasteryProbability: 0.8,
         minAttemptsPerQuestion: 3,
-        maxDifficultyScore: 0.35, // Adjusted based on your data
+        maxDifficultyScore: 0.65, // !this defines how much time will it take for the quiz to end 
         minCorrectPercentage: 0.75,
         maxConfidenceInterval: 0.4, // Adjusted based on your data
         minTimeBetweenAttempts: 1, // Reduced to 1 minute for testing
