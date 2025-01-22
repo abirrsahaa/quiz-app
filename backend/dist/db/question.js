@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 // and i guess http server bhi call karna pasdega for this use case
+// !question schema is perfect no major changes needed only thing i need to mention here is the reference to topic and nothing else
 const QuestionSchema = new mongoose_1.Schema({
     question: {
         type: String,

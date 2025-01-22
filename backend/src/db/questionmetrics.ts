@@ -1,10 +1,18 @@
 import { Document, model, models, Schema } from "mongoose";
 
+// !question metrics mai bohot sare changes honge yeh pta hai mereko and yeh changes koi major nahi 
+// !bss mujhe itna pata hai ke user info and unique quiz id rhega and yeh sarri milke question_attempted ke nam pe hoga 
+// !sun le quiz_id hai na ak array hoga to store 
+
+// !and quiz info mai bhi uss quiz related sabhi state dala jayega so relation uss hisab se banana hau
+
 export interface IquestionMetric extends Document {
     question:Schema.Types.ObjectId;
     // student_id:Schema.Types.ObjectId;
+    user_info:Schema.Types.ObjectId;
     total_attempts:number,
     lastShown: Date;
+    lastAnswered: number;
     correct:number;
     incorrect:number;
     difficulty_score: number;
@@ -15,10 +23,10 @@ export interface IquestionMetric extends Document {
 
 const QuestionMetricsSchema = new Schema({
     question:{ type: Schema.Types.ObjectId, ref: 'Question' },
-    // student_id:{type:Schema.Types.ObjectId, ref:'Student'},
-    // let here be the metrics 
+    user_info:{type:Schema.Types.ObjectId,ref:'User'}, 
     total_attempts:{type:Number,default:0},
     lastShown:{ type: Date, default: Date.now },
+    lastAnswered:{type:Number,default:-1},
     correct:{type:Number,default:0},
     incorrect:{type:Number,default:0},
     difficulty_score: { type: Number,default:0 }, //need to provide a default value
@@ -28,6 +36,6 @@ const QuestionMetricsSchema = new Schema({
   });
 
   
-  const QuestionMetrics = models.QuestionMetrics || model('QuestionMetrics', QuestionMetricsSchema);
+  const QuestionAttempted = models.QuestionAttempted || model('QuestionAttempted', QuestionMetricsSchema);
 
-  export default QuestionMetrics;
+  export default QuestionAttempted;

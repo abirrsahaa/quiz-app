@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const QuestionMetricsSchema = new mongoose_1.Schema({
     question: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Question' },
-    // student_id:{type:Schema.Types.ObjectId, ref:'Student'},
-    // let here be the metrics 
+    user_info: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User' },
     total_attempts: { type: Number, default: 0 },
     lastShown: { type: Date, default: Date.now },
+    lastAnswered: { type: Number, default: -1 },
     correct: { type: Number, default: 0 },
     incorrect: { type: Number, default: 0 },
     difficulty_score: { type: Number, default: 0 }, //need to provide a default value
@@ -14,5 +14,5 @@ const QuestionMetricsSchema = new mongoose_1.Schema({
     mastery_probability: { type: Number, default: 0 }, //need to provide a default value
     recommendation_ratio: { type: Number, default: 0 }, //need to provide a default value
 });
-const QuestionMetrics = mongoose_1.models.QuestionMetrics || (0, mongoose_1.model)('QuestionMetrics', QuestionMetricsSchema);
-exports.default = QuestionMetrics;
+const QuestionAttempted = mongoose_1.models.QuestionAttempted || (0, mongoose_1.model)('QuestionAttempted', QuestionMetricsSchema);
+exports.default = QuestionAttempted;

@@ -1,8 +1,10 @@
 // !full on think as a teacher and how would the quiz look like
 
 
+import mongoose from "mongoose";
 import Question, { IQuestion } from "./db/question";
-import QuestionMetrics, { IquestionMetric } from "./db/questionmetrics";
+import QuestionAttempted from "./db/questionmetrics";
+// import QuestionMetrics, { IquestionMetric } from "./db/questionmetrics";
 
 
 // !have a type for questions 
@@ -50,7 +52,8 @@ export class Quiz{
 
             return this.questions[this.activeQuestionNumber];
         }
-        async populateQuestions(){
+        async populateQuestions(userId:string){
+            const userObjectId = new mongoose.Types.ObjectId(userId);
             // !populate the questions from the db
             // !now set the conditions on how you are setting 
             // !as here i need to inject the metrics 
@@ -58,7 +61,9 @@ export class Quiz{
             // ------------------------------------------------
                //   !now that i have the unaswered 5 questions lets have 5 more from answered one
         // !now lets have the answered questions
-        const answeredQuestions:any[]=await QuestionMetrics.find({
+        // !idhar question attempted wala collection hoga and i should get the object id of the user anyhow typecast it and then search with it else all of it is right 
+        const answeredQuestions:any[]=await QuestionAttempted.find({
+            user_info:userObjectId,
             total_attempts: { $gt: 0 } }).sort({recommendation_ratio:-1}).limit(5).populate('question');
         console.log("the answered questions are which already have metrics i.e they have been answered",answeredQuestions);
         // !now filter out the questions that are already there in the question bank
@@ -72,7 +77,7 @@ export class Quiz{
             const getting_unanswered = async () => {
                 const unanswered = await Promise.all(
                     all_questions_db.map(async (question: IQuestion) => {
-                        const ques = await QuestionMetrics.findOne({ question: question._id });
+                        const ques = await QuestionAttempted.findOne({user_info:userObjectId, question: question._id });
                         console.log("the ques if found is ", ques);
                         if (!ques) {
                             return question;
@@ -104,7 +109,8 @@ export class Quiz{
             //! here i am injecting the metrics in the questions
             const question_metrics = await Promise.all(
                 injectableQuestions.map(async (question: IQuestion) => {
-                    const ques = new QuestionMetrics({
+                    const ques = new QuestionAttempted({
+                        user_info:userObjectId,
                         question: question._id
                     });
                     await ques.save();
@@ -118,7 +124,7 @@ export class Quiz{
             console.log("the questions which just got metrics are ", question_metrics);
 
            
-        const unanswered_question_metrics=await QuestionMetrics.find({total_attempts:0}).populate('question');
+        const unanswered_question_metrics=await QuestionAttempted.find({user_info:userObjectId,total_attempts:0}).populate('question');
         console.log("the unanswered questions are ",unanswered_question_metrics);
         question_metrics.push(...unanswered_question_metrics);
         const combinedQuestions=question_metrics.concat(answeredQuestions);

@@ -3,6 +3,8 @@ import React, { useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
+import axios from "axios";
+
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 
@@ -11,7 +13,7 @@ export function SignupFormDemo() {
     const lastNameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit =async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const firstName = firstNameRef.current?.value;
     const lastName = lastNameRef.current?.value;
@@ -23,6 +25,21 @@ export function SignupFormDemo() {
     console.log('Email:', email);
     console.log('Password:', password);
     console.log("Form submitted");
+
+    const response=await axios.post("http://localhost:8080/signup",{
+        first_name:firstName,
+        last_name:lastName,
+        email:email,
+        password:password
+    },{
+      withCredentials:true
+    });
+
+    console.log("the response is",response);
+
+
+
+    localStorage.setItem("user",response.data.token);
 
     // !mast se ai route banao and backend pe daldo then redirect kardo 
     // !baki react hai toh sesssion management tereko hi karni hai for better user experience woh dekhlio akbar tu 

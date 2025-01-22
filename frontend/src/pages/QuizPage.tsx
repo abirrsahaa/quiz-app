@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useStore } from '@/hooks/zustand'
 
 
 // !frontend additions in ui 
@@ -21,13 +22,19 @@ export default function QuizPage() {
 
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
+    const {first_name,last_name,email,id}=useStore();
+    console.log("the details received here is ",{
+        first_name,last_name,email,id
+    });
+
     useEffect(()=>{
         const ws = new WebSocket("ws://localhost:8080");
         ws.onopen = () => {
             console.log("Connected to server from the client");
             // !init the quiz 
             ws.send(JSON.stringify({
-                type:"START_QUIZ"
+                type:"START_QUIZ",
+                userId:id
             }))
         }
         ws.onclose = () => {
@@ -74,7 +81,8 @@ export default function QuizPage() {
       socket?.send(JSON.stringify({
         type:"ANSWERED",
         question:question,
-        answer:selectedAnswer
+        answer:selectedAnswer,
+        userId:id
       }))
     },[selectedAnswer,question,socket])
 

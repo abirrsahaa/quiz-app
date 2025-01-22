@@ -14,10 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.QuizManager = void 0;
 const Quiz_1 = require("./Quiz");
-const mongoose_1 = __importDefault(require("./mongoose"));
-const questionmetrics_1 = __importDefault(require("./db/questionmetrics"));
 const metrics_1 = __importDefault(require("./utils/metrics"));
 const topic_mastery_1 = require("./utils/topic_mastery");
+const questionmetrics_1 = __importDefault(require("./db/questionmetrics"));
+const mongoose_1 = __importDefault(require("mongoose"));
 class QuizManager {
     constructor() {
         this.QuizList = [];
@@ -50,11 +50,13 @@ class QuizManager {
                 // this is when the quiz is started so here is the point
                 // where i need to populate my question bank
                 console.log("i am here in this ");
-                (0, mongoose_1.default)();
+                // connectToMongo();
                 this.activeQuiz = new Quiz_1.Quiz();
+                // !idhar dekh ak naya quiz generate huya hai make sure tu db mai bhi same bana 
+                // !and figure out every possible data ka jo answer araha hai uska state mantain karna hai idhar matlab alag se banana hai ak question ka collection jisme dikhayega konsa answer user ne select kiya tha 
                 // call a function which will populate the questions in the quiz
                 console.log("the question here is ", this.activeQuiz.questions);
-                yield this.activeQuiz.populateQuestions();
+                yield this.activeQuiz.populateQuestions(data.userId);
                 console.log("the question here is after ", this.activeQuiz.questions);
                 if (this.activeQuiz) {
                     const question = this.activeQuiz.startQuiz();
@@ -100,7 +102,10 @@ class QuizManager {
                 // !dissect this part this might be causing the issue
                 if (this.activeQuiz) {
                     const question_received = data === null || data === void 0 ? void 0 : data.question;
-                    const question_db = yield questionmetrics_1.default.findOne({ question: question_received._id });
+                    const userObjectId = new mongoose_1.default.Types.ObjectId(data.userId);
+                    console.log("the user id is ", userObjectId);
+                    const question_db = yield questionmetrics_1.default.findOne({ user_info: userObjectId, question: question_received._id });
+                    console.log("the question db is ", question_db);
                     // ab check karo ke shi hai ya galat hai 
                     // !this is also a unoptimized approach but i am focussing on the thing to work 
                     // !so i will optimize it later
@@ -117,6 +122,7 @@ class QuizManager {
                     this.count_answered++;
                     question_db.total_attempts++;
                     question_db.lastShown = new Date();
+                    question_db.lastAnswered = data.answer;
                     if (question_received.correctAnswer == data.answer) {
                         question_db.correct++;
                     }
@@ -144,7 +150,7 @@ class QuizManager {
                         // });
                         // !do the infinite quiz part whenever it hits 5
                         if (this.count_answered == 3) {
-                            this.activeQuiz.populateQuestions();
+                            this.activeQuiz.populateQuestions(data.userId);
                             this.count_answered = 0;
                             console.log("i got called for infinite quiz");
                             console.log("the length for the inmemory question bank is ", this.activeQuiz.questions.length);

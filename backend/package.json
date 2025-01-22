@@ -16,16 +16,23 @@
     "@types/express": "^5.0.0",
     "@types/socket.io": "^3.0.1",
     "@types/ws": "^8.5.13",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "http": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "ngrok": "^5.0.0-beta.2",
     "socket.io": "^4.8.1",
     "svix": "^1.45.1",
     "typescript": "^5.7.2",
     "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.7"
   }
 }

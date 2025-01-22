@@ -6,6 +6,8 @@ import Question, { IQuestion } from "./db/question";
 import QuestionMetrics, { IquestionMetric } from "./db/questionmetrics";
 import UpdateMetrics from "./utils/metrics";
 import { TopicMasteryDetermination } from "./utils/topic_mastery";
+import QuestionAttempted from "./db/questionmetrics";
+import mongoose from "mongoose";
 
 
 export class QuizManager{
@@ -52,11 +54,13 @@ export class QuizManager{
                 // this is when the quiz is started so here is the point
                 // where i need to populate my question bank
                 console.log("i am here in this ");
-                connectToMongo();
+                // connectToMongo();
                 this.activeQuiz=new Quiz();
+                // !idhar dekh ak naya quiz generate huya hai make sure tu db mai bhi same bana 
+                // !and figure out every possible data ka jo answer araha hai uska state mantain karna hai idhar matlab alag se banana hai ak question ka collection jisme dikhayega konsa answer user ne select kiya tha 
                 // call a function which will populate the questions in the quiz
                 console.log("the question here is ",this.activeQuiz.questions);
-                await this.activeQuiz.populateQuestions();
+                await this.activeQuiz.populateQuestions(data.userId);
                 console.log("the question here is after ",this.activeQuiz.questions);
                 if(this.activeQuiz){
                     const question=this.activeQuiz.startQuiz();
@@ -103,7 +107,10 @@ export class QuizManager{
                 // !dissect this part this might be causing the issue
                 if(this.activeQuiz){
                     const question_received:IQuestion=data?.question;
-                    const question_db:IquestionMetric=await QuestionMetrics.findOne({question:question_received._id}) as IquestionMetric;
+                    const userObjectId = new mongoose.Types.ObjectId(data.userId);
+                    console.log("the user id is ",userObjectId);
+                    const question_db:IquestionMetric=await QuestionAttempted.findOne({user_info:userObjectId,question:question_received._id}) as IquestionMetric;
+                    console.log("the question db is ",question_db);
                     // ab check karo ke shi hai ya galat hai 
                     // !this is also a unoptimized approach but i am focussing on the thing to work 
                     // !so i will optimize it later
@@ -119,6 +126,7 @@ export class QuizManager{
                     this.count_answered++;
                     question_db.total_attempts++;
                     question_db.lastShown=new Date();
+                    question_db.lastAnswered=data.answer;
                     
                     if(question_received.correctAnswer==data.answer){
                         question_db.correct++;
@@ -151,7 +159,7 @@ export class QuizManager{
                         // });
                          // !do the infinite quiz part whenever it hits 5
                         if(this.count_answered==3){
-                            this.activeQuiz.populateQuestions();
+                            this.activeQuiz.populateQuestions(data.userId);
                             this.count_answered=0;
                             console.log("i got called for infinite quiz");
                             console.log("the length for the inmemory question bank is ",this.activeQuiz.questions.length);

@@ -20,10 +20,12 @@ export function Hero() {
         Start Free Trial
       </Button>
     </Link>
+    <Link to="/quiz">
           <Button size="lg" variant="outline" className="text-black">
             <PlayCircle className="mr-2 h-5 w-5" />
             Watch Demo
           </Button>
+          </Link>
         </div>
         <div className="mt-20 grid grid-cols-1 gap-8 sm:grid-cols-3">
           {features.map((feature) => (

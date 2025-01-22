@@ -14,6 +14,8 @@ export interface IQuestion extends Document{
 
 // and i guess http server bhi call karna pasdega for this use case
 
+// !question schema is perfect no major changes needed only thing i need to mention here is the reference to topic and nothing else
+
 
 const QuestionSchema = new Schema({
     question: {

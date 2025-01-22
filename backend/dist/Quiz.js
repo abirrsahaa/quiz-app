@@ -14,8 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quiz = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
 const question_1 = __importDefault(require("./db/question"));
 const questionmetrics_1 = __importDefault(require("./db/questionmetrics"));
+// import QuestionMetrics, { IquestionMetric } from "./db/questionmetrics";
 // !have a type for questions 
 // interface Question{
 //     question:string;
@@ -48,8 +50,9 @@ class Quiz {
         // }
         return this.questions[this.activeQuestionNumber];
     }
-    populateQuestions() {
+    populateQuestions(userId) {
         return __awaiter(this, void 0, void 0, function* () {
+            const userObjectId = new mongoose_1.default.Types.ObjectId(userId);
             // !populate the questions from the db
             // !now set the conditions on how you are setting 
             // !as here i need to inject the metrics 
@@ -57,7 +60,9 @@ class Quiz {
             // ------------------------------------------------
             //   !now that i have the unaswered 5 questions lets have 5 more from answered one
             // !now lets have the answered questions
+            // !idhar question attempted wala collection hoga and i should get the object id of the user anyhow typecast it and then search with it else all of it is right 
             const answeredQuestions = yield questionmetrics_1.default.find({
+                user_info: userObjectId,
                 total_attempts: { $gt: 0 }
             }).sort({ recommendation_ratio: -1 }).limit(5).populate('question');
             console.log("the answered questions are which already have metrics i.e they have been answered", answeredQuestions);
@@ -69,7 +74,7 @@ class Quiz {
             // !first lets get the unanswered questions which will only get into injectable metrics 
             const getting_unanswered = () => __awaiter(this, void 0, void 0, function* () {
                 const unanswered = yield Promise.all(all_questions_db.map((question) => __awaiter(this, void 0, void 0, function* () {
-                    const ques = yield questionmetrics_1.default.findOne({ question: question._id });
+                    const ques = yield questionmetrics_1.default.findOne({ user_info: userObjectId, question: question._id });
                     console.log("the ques if found is ", ques);
                     if (!ques) {
                         return question;
@@ -94,6 +99,7 @@ class Quiz {
             //! here i am injecting the metrics in the questions
             const question_metrics = yield Promise.all(injectableQuestions.map((question) => __awaiter(this, void 0, void 0, function* () {
                 const ques = new questionmetrics_1.default({
+                    user_info: userObjectId,
                     question: question._id
                 });
                 yield ques.save();
@@ -103,7 +109,7 @@ class Quiz {
                 return ques;
             })));
             console.log("the questions which just got metrics are ", question_metrics);
-            const unanswered_question_metrics = yield questionmetrics_1.default.find({ total_attempts: 0 }).populate('question');
+            const unanswered_question_metrics = yield questionmetrics_1.default.find({ user_info: userObjectId, total_attempts: 0 }).populate('question');
             console.log("the unanswered questions are ", unanswered_question_metrics);
             question_metrics.push(...unanswered_question_metrics);
             const combinedQuestions = question_metrics.concat(answeredQuestions);
