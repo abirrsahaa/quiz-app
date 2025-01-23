@@ -8,6 +8,9 @@ export interface Iexam extends Document{
     subects:[Schema.Types.ObjectId];
     name:string;
     description:string;
+    image:string;
+    duration:number;
+    question_count:number;
 }
 
 const ExamSchema=new Schema({
@@ -19,6 +22,18 @@ const ExamSchema=new Schema({
         type:String,
         required:true
     },
+    image:{
+        type:String,
+        required:true
+    },
+    duration:{
+        type:Number,
+        required:true
+    },
+    question_count:{
+        type:Number,
+        required:true
+    },
     subjects:[{type:Schema.Types.ObjectId,ref:'Subject'}]
 
 
@@ -27,3 +42,19 @@ const ExamSchema=new Schema({
 const Exam=models.Exam || model('Exam',ExamSchema);
 
 export default Exam;
+
+
+// !question count 
+// subjects[
+// id
+// name
+// description
+// chapters[
+//     id 
+//     name
+//     description
+//     topics[
+//         id , 
+//         name
+//     ]
+// ]]

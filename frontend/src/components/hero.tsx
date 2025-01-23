@@ -20,7 +20,7 @@ export function Hero() {
         Start Free Trial
       </Button>
     </Link>
-    <Link to="/quiz">
+    <Link to="/generate_quiz">
           <Button size="lg" variant="outline" className="text-black">
             <PlayCircle className="mr-2 h-5 w-5" />
             Watch Demo

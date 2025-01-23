@@ -23,6 +23,8 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const mongoose_1 = __importDefault(require("./mongoose"));
+const topic_1 = __importDefault(require("./db/topic"));
+const question_seed_1 = require("./utils/question_seed");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 dotenv_1.default.config();
@@ -51,7 +53,6 @@ app.post('/question', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(500).send(err);
     }
 }));
-(0, mongoose_1.default)();
 // @ts-ignore
 app.get("/user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -137,6 +138,11 @@ app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 }));
 const quizManager = new QuizManager_1.QuizManager();
+// this means jokhon server run korbo tokhon quiz manager create hoibo right !
+// !akhon quiz manager hoiya gese akhon jotobar server side event aibo ai route e tokhon akta event pass hoibo jar karone akta quiz generate hoitase 
+// !for suppose just reload korse and oi session er quiz e akta attribute thakbo jen ended ki na ..jeta naki either topic completion e hoibo ba jokhon user e intentionally end korbo 
+// !so jokhon e ami quiz page e jamu with the user details i can look for the latest quiz id has ended or not or agr ended na ho toh quiz manager se woh nikal na padega and then uss active quiz mai woh nikal ke mereko wohi quiz state lana padega which is a concern 
+// !but i can actually skip this thing why to recover a quiz ..i am not giving a test right ? quiz ended doesnt matter when the user will again go for the quiz he wil be preparing only 
 const ws = new ws_1.WebSocketServer({ server });
 ws.on("connection", (socket) => {
     console.log('Client connected');
@@ -147,6 +153,20 @@ ws.on("connection", (socket) => {
     }));
     quizManager.addUser(socket);
 });
+// @ts-ignore
+app.get("/exam", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const topics = yield topic_1.default.find();
+        yield (0, question_seed_1.populateQuestions)(topics);
+        console.log("the questions are populated");
+        return res.status(200).send("Questions populated successfully");
+    }
+    catch (error) {
+        console.log("there was an error in sedding the questions", error);
+        return res.status(500).send("There was an error in sending the questions");
+    }
+}));
 server.listen(8080, () => {
+    (0, mongoose_1.default)();
     console.log('Server is running on port 8080');
 });

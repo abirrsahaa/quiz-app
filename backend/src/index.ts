@@ -9,6 +9,11 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import connectToMongo from './mongoose';
+import Exam from './db/exam';
+import Subject from './db/subject';
+import Chapter from './db/chapter';
+import Topic from './db/topic';
+import { populateQuestions } from './utils/question_seed';
 
 
 
@@ -50,7 +55,7 @@ app.post('/question',async(req,res)=>{
 });
 
 
-connectToMongo();
+
 
 // @ts-ignore
 app.get("/user",async(req,res)=>{
@@ -154,6 +159,11 @@ app.post('/signup',async(req,res)=>{
 })
 
 const quizManager=new QuizManager();
+// this means jokhon server run korbo tokhon quiz manager create hoibo right !
+// !akhon quiz manager hoiya gese akhon jotobar server side event aibo ai route e tokhon akta event pass hoibo jar karone akta quiz generate hoitase 
+// !for suppose just reload korse and oi session er quiz e akta attribute thakbo jen ended ki na ..jeta naki either topic completion e hoibo ba jokhon user e intentionally end korbo 
+// !so jokhon e ami quiz page e jamu with the user details i can look for the latest quiz id has ended or not or agr ended na ho toh quiz manager se woh nikal na padega and then uss active quiz mai woh nikal ke mereko wohi quiz state lana padega which is a concern 
+// !but i can actually skip this thing why to recover a quiz ..i am not giving a test right ? quiz ended doesnt matter when the user will again go for the quiz he wil be preparing only 
 
 
 const ws=new WebSocketServer({server});
@@ -170,6 +180,30 @@ ws.on("connection",(socket:WebSocket)=>{
 })
 
 
+
+
+
+// @ts-ignore
+app.get("/exam",async(req,res)=>{
+try {
+
+    const topics = await Topic.find();
+    await populateQuestions(topics);
+
+    console.log("the questions are populated");
+    return res.status(200).send("Questions populated successfully");
+
+
+    
+} catch (error) {
+    console.log("there was an error in sedding the questions",error);
+    return res.status(500).send("There was an error in sending the questions");
+    
+}
+})
+
+
 server.listen(8080,()=>{
+    connectToMongo();
     console.log('Server is running on port 8080');
 });
