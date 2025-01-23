@@ -1,24 +1,62 @@
-import { useState } from 'react';
-import { exams } from '@/data/mockData';
+import { useEffect, useState } from 'react';
 import { QuizStepper } from '@/components/quiz/QuizStepper';
-import { QuizMode } from '@/types/quiz';
+import { QuizMode, ExamType } from '@/types/quiz';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
-function Quiz_generate() {
+
+function QuizGenerate() {
+  const [exams, setExams] = useState<ExamType[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizParams, setQuizParams] = useState<{
     examId: string;
     mode: QuizMode;
     subjectId?: string;
+    chapterId?: string;
     topicId?: string;
   } | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/get_edu_data");
+        const data = await response.json();
+        setExams(data.edu_info);
+      } catch (error) {
+        console.log("Error fetching data, using mock data instead:", error);
+        // Convert mock data to match the new schema
+        const convertedMockExams: ExamType[] = exams.map(exam => ({
+          _id: exam._id,
+          name: exam.name,
+          description: exam.description,
+          image: exam.image,
+          duration: exam.duration || 180,
+          question_count: exam.question_count || 65,
+          subjects: exam.subjects || []
+        }));
+        setExams(convertedMockExams);
+        toast({
+          title: "Using Demo Data",
+          description: "Connected to demo mode since the backend is not available.",
+          duration: 5000,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [toast]);
 
   const handleStartQuiz = (params: {
     examId: string;
     mode: QuizMode;
     subjectId?: string;
+    chapterId?: string;
     topicId?: string;
   }) => {
     setQuizParams(params);
@@ -26,21 +64,8 @@ function Quiz_generate() {
   };
 
   if (quizStarted && quizParams) {
-    // return (
-    //   <motion.div
-    //     initial={{ opacity: 0 }}
-    //     animate={{ opacity: 1 }}
-    //     className="min-h-screen bg-background p-6"
-    //   >
-    //     <div className="max-w-4xl mx-auto">
-    //       <h1 className="text-4xl font-bold text-center mb-8">Quiz Started!</h1>
-    //       <pre className="bg-muted p-4 rounded-lg">
-    //         {JSON.stringify(quizParams, null, 2)}
-    //       </pre>
-    //     </div>
-    //   </motion.div>
-    // );
-    navigate('/quiz');
+    navigate('/quiz', { state: quizParams });
+    return null;
   }
 
   return (
@@ -58,10 +83,12 @@ function Quiz_generate() {
       </header>
       
       <main>
-        <QuizStepper exams={exams} onStart={handleStartQuiz} />
+        {!loading && exams.length > 0 && (
+          <QuizStepper exams={exams} onStart={handleStartQuiz} />
+        )}
       </main>
     </motion.div>
   );
 }
 
-export default Quiz_generate;
+export default QuizGenerate;

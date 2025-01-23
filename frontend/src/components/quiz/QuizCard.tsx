@@ -2,15 +2,15 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-export interface QuizCardProps {
-    title?: string;
-    description?: string;
-    image?: string;
-    selected?: boolean;
-    onClick?: () => void;
-    onMouseEnter?: () => void; // Add this line
-    className?:string;
-  }
+type QuizCardProps = {
+  title: string;
+  description?: string;
+  image?: string;
+  selected?: boolean;
+  onClick?: () => void;
+  onMouseEnter: () => void;
+  className?: string;
+};
 
 export function QuizCard({
   title,

@@ -179,17 +179,15 @@ function generateQuestionsForTopic(topicName, count = 20) {
 function populateQuestions(topics) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            for (const topic of topics) {
-                const questions = generateQuestionsForTopic(topic.name);
+            for (const currentTopic of topics) {
+                const questions = generateQuestionsForTopic(currentTopic.name);
                 if (questions.length > 0) {
-                    // Create questions with topic reference
-                    const questionsToSave = questions.map(q => (Object.assign(Object.assign({}, q), { topic: topic._id })));
-                    // Save questions and get their IDs
+                    const questionsToSave = questions.map(q => (Object.assign(Object.assign({}, q), { topic: currentTopic._id })));
                     const savedQuestions = yield question_1.default.insertMany(questionsToSave);
                     const questionIds = savedQuestions.map(q => q._id);
-                    // Update topic with question references
-                    yield topic_1.default.findByIdAndUpdate(topic._id, { questions: questionIds }, { new: true });
-                    console.log(`Populated ${questionIds.length} questions for topic: ${topic.name}`);
+                    yield topic_1.default.findByIdAndUpdate(// Changed from Topic to topic
+                    currentTopic._id, { questions: questionIds }, { new: true });
+                    console.log(`Populated ${questionIds.length} questions for topic: ${currentTopic.name}`);
                 }
             }
         }
@@ -199,3 +197,4 @@ function populateQuestions(topics) {
         }
     });
 }
+// ...existing code...

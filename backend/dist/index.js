@@ -23,8 +23,11 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const mongoose_1 = __importDefault(require("./mongoose"));
-const topic_1 = __importDefault(require("./db/topic"));
 const question_seed_1 = require("./utils/question_seed");
+const exam_1 = __importDefault(require("./db/exam"));
+const subject_1 = __importDefault(require("./db/subject"));
+const chapter_1 = __importDefault(require("./db/chapter"));
+const topic_1 = __importDefault(require("./db/topic"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 dotenv_1.default.config();
@@ -153,17 +156,313 @@ ws.on("connection", (socket) => {
     }));
     quizManager.addUser(socket);
 });
+const neetSubjects = [
+    {
+        name: "Zoology",
+        description: "Animal biology, human physiology, and animal diversity for medical entrance exam",
+        chapters: []
+    },
+    {
+        name: "Botany",
+        description: "Plant biology, plant physiology, and botanical systems for medical entrance exam",
+        chapters: []
+    },
+    {
+        name: "Physics",
+        description: "Fundamental physics concepts required for medical entrance examination",
+        chapters: []
+    },
+    {
+        name: "Chemistry",
+        description: "Essential chemical principles and organic chemistry for medical aspirants",
+        chapters: []
+    }
+];
+const zoologyChapters = [
+    {
+        name: "Diversity in Living World",
+        description: "Classification and diversity of animal life",
+        topics: []
+    },
+    {
+        name: "Structural Organization in Animals",
+        description: "Detailed study of animal body structures",
+        topics: []
+    },
+    {
+        name: "Cell and Cell Division",
+        description: "Cellular processes and reproductive mechanisms",
+        topics: []
+    },
+    {
+        name: "Genetics and Evolution",
+        description: "Principles of inheritance and evolutionary mechanisms",
+        topics: []
+    },
+    {
+        name: "Human Physiology",
+        description: "Comprehensive study of human body systems",
+        topics: []
+    }
+];
+const botanyChapters = [
+    {
+        name: "Diversity of Living Organisms",
+        description: "Classification and diversity of plant life",
+        topics: []
+    },
+    {
+        name: "Structural Organization in Plants",
+        description: "Plant anatomy and morphology",
+        topics: []
+    },
+    {
+        name: "Cell Biology",
+        description: "Cellular processes in plant life",
+        topics: []
+    },
+    {
+        name: "Plant Physiology",
+        description: "Functional processes in plants",
+        topics: []
+    },
+    {
+        name: "Reproduction in Plants",
+        description: "Reproductive mechanisms in plant kingdom",
+        topics: []
+    }
+];
+const physicsChapters = [
+    {
+        name: "Mechanics",
+        description: "Fundamental principles of motion and forces",
+        topics: []
+    },
+    {
+        name: "Thermodynamics",
+        description: "Heat, temperature, and energy transfer",
+        topics: []
+    },
+    {
+        name: "Electromagnetism",
+        description: "Electrical and magnetic phenomena",
+        topics: []
+    },
+    {
+        name: "Optics",
+        description: "Study of light and optical systems",
+        topics: []
+    },
+    {
+        name: "Modern Physics",
+        description: "Contemporary physics concepts",
+        topics: []
+    }
+];
+const chemistryChapters = [
+    {
+        name: "Physical Chemistry",
+        description: "Fundamental chemical principles",
+        topics: []
+    },
+    {
+        name: "Inorganic Chemistry",
+        description: "Chemistry of non-carbon elements",
+        topics: []
+    },
+    {
+        name: "Organic Chemistry",
+        description: "Study of carbon-based compounds",
+        topics: []
+    },
+    {
+        name: "Environmental Chemistry",
+        description: "Chemical interactions in environment",
+        topics: []
+    }
+];
+const topicsByChapter = {
+    "Diversity in Living World": [
+        { name: "Biological Classification" },
+        { name: "Five Kingdom Classification" },
+        { name: "Taxonomic Hierarchy" },
+        { name: "Nomenclature Systems" },
+        { name: "Binomial Nomenclature" }
+    ],
+    "Structural Organization in Animals": [
+        { name: "Animal Tissues" },
+        { name: "Organ Systems" },
+        { name: "Morphological Adaptations" },
+        { name: "Comparative Anatomy" },
+        { name: "Body Plans" }
+    ],
+    "Cell and Cell Division": [
+        { name: "Cell Structure" },
+        { name: "Mitosis" },
+        { name: "Meiosis" },
+        { name: "Cellular Organelles" },
+        { name: "Cell Membrane Dynamics" }
+    ],
+    "Genetics and Evolution": [
+        { name: "Mendelian Inheritance" },
+        { name: "Genetic Variations" },
+        { name: "Natural Selection" },
+        { name: "Genetic Mutations" },
+        { name: "Population Genetics" }
+    ],
+    "Human Physiology": [
+        { name: "Digestive System" },
+        { name: "Respiratory System" },
+        { name: "Circulatory System" },
+        { name: "Nervous System" },
+        { name: "Endocrine System" }
+    ],
+    "Diversity of Living Organisms": [
+        { name: "Plant Kingdom Classification" },
+        { name: "Botanical Nomenclature" },
+        { name: "Plant Diversity" },
+        { name: "Algae and Fungi" },
+        { name: "Bryophytes and Pteridophytes" }
+    ],
+    "Structural Organization in Plants": [
+        { name: "Plant Tissues" },
+        { name: "Root Structure" },
+        { name: "Stem and Leaf Anatomy" },
+        { name: "Reproductive Structures" },
+        { name: "Meristematic Tissues" }
+    ],
+    "Cell Biology": [
+        { name: "Cell Membrane" },
+        { name: "Cellular Organelles" },
+        { name: "Cell Metabolism" },
+        { name: "Cellular Signaling" },
+        { name: "Transport Mechanisms" }
+    ],
+    "Plant Physiology": [
+        { name: "Photosynthesis" },
+        { name: "Respiration" },
+        { name: "Plant Growth" },
+        { name: "Water and Mineral Nutrition" },
+        { name: "Plant Hormones" }
+    ],
+    "Reproduction in Plants": [
+        { name: "Sexual Reproduction" },
+        { name: "Asexual Reproduction" },
+        { name: "Flower Structure" },
+        { name: "Pollination Mechanisms" },
+        { name: "Seed Formation" }
+    ],
+    "Mechanics": [
+        { name: "Kinematics" },
+        { name: "Newton's Laws" },
+        { name: "Work and Energy" },
+        { name: "Rotational Motion" },
+        { name: "Gravitation" }
+    ],
+    "Thermodynamics": [
+        { name: "Heat Transfer" },
+        { name: "Laws of Thermodynamics" },
+        { name: "Thermal Properties" },
+        { name: "Heat Engines" },
+        { name: "Specific Heat Capacity" }
+    ],
+    "Electromagnetism": [
+        { name: "Electric Charges" },
+        { name: "Magnetic Fields" },
+        { name: "Electromagnetic Induction" },
+        { name: "Electric Circuits" },
+        { name: "Electromagnetic Waves" }
+    ],
+    "Optics": [
+        { name: "Ray Optics" },
+        { name: "Wave Optics" },
+        { name: "Optical Instruments" },
+        { name: "Reflection and Refraction" },
+        { name: "Interference and Diffraction" }
+    ],
+    "Modern Physics": [
+        { name: "Quantum Mechanics" },
+        { name: "Atomic Structure" },
+        { name: "Nuclear Physics" },
+        { name: "Radioactivity" },
+        { name: "Particle Physics" }
+    ],
+    "Physical Chemistry": [
+        { name: "Chemical Kinetics" },
+        { name: "Thermochemistry" },
+        { name: "Chemical Equilibrium" },
+        { name: "Solutions" },
+        { name: "Electrochemistry" }
+    ],
+    "Inorganic Chemistry": [
+        { name: "Periodic Table" },
+        { name: "Chemical Bonding" },
+        { name: "Coordination Compounds" },
+        { name: "Metallurgy" },
+        { name: "Qualitative Analysis" }
+    ],
+    "Organic Chemistry": [
+        { name: "Hydrocarbons" },
+        { name: "Functional Groups" },
+        { name: "Organic Reactions" },
+        { name: "Stereochemistry" },
+        { name: "Organic Synthesis" }
+    ],
+    "Environmental Chemistry": [
+        { name: "Pollution" },
+        { name: "Green Chemistry" },
+        { name: "Environmental Impact" },
+        { name: "Atmospheric Chemistry" },
+        { name: "Water and Soil Chemistry" }
+    ]
+};
 // @ts-ignore
 app.get("/exam", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const subjects = yield subject_1.default.find();
+    const exams = yield exam_1.default.find();
+    const chapters = yield chapter_1.default.find();
+    const topics = yield topic_1.default.find();
     try {
+        // !for memory purpose
         const topics = yield topic_1.default.find();
         yield (0, question_seed_1.populateQuestions)(topics);
-        console.log("the questions are populated");
-        return res.status(200).send("Questions populated successfully");
+        console.log('NEET Topics successfully seeded');
     }
     catch (error) {
-        console.log("there was an error in sedding the questions", error);
-        return res.status(500).send("There was an error in sending the questions");
+        console.error('Error seeding NEET topics:', error);
+    }
+}));
+// @ts-ignore
+app.get("/get_edu_data", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+    const subjects = yield subject_1.default.find();
+    const exams = yield exam_1.default.find();
+    const chapters = yield chapter_1.default.find();
+    const topics = yield topic_1.default.find();
+    try {
+        const exams = yield exam_1.default.find({})
+            .populate({
+            path: 'subjects',
+            model: 'subjects',
+            populate: [{
+                    path: 'chapters',
+                    model: 'chapters',
+                    populate: [{
+                            path: 'topics',
+                            model: 'topics',
+                        }]
+                }]
+        });
+        // Debug each level
+        console.log('Exam count:', exams.length);
+        console.log('First exam subjects:', (_b = (_a = exams[0]) === null || _a === void 0 ? void 0 : _a.subjects) === null || _b === void 0 ? void 0 : _b.length);
+        console.log('First subject chapters:', (_e = (_d = (_c = exams[0]) === null || _c === void 0 ? void 0 : _c.subjects[0]) === null || _d === void 0 ? void 0 : _d.chapters) === null || _e === void 0 ? void 0 : _e.length);
+        console.log('First chapter topics:', (_j = (_h = (_g = (_f = exams[0]) === null || _f === void 0 ? void 0 : _f.subjects[0]) === null || _g === void 0 ? void 0 : _g.chapters[0]) === null || _h === void 0 ? void 0 : _h.topics) === null || _j === void 0 ? void 0 : _j.length);
+        return res.status(200).json({ edu_info: exams });
+    }
+    catch (error) {
+        console.log("there was an error in fetching the education data", error);
+        return res.status(500).send("There was an error in fetching the education data");
     }
 }));
 server.listen(8080, () => {

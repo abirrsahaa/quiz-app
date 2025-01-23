@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { ExamType, QuizMode, Subject, Topic, Difficulty } from '@/types/quiz';
+import { ExamType, QuizMode, Subject, Chapter, Topic, Difficulty } from '@/types/quiz';
 import { QuizCard } from './QuizCard';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Brain, GraduationCap, BookOpen } from 'lucide-react';
@@ -15,6 +15,7 @@ type QuizStepperProps = {
     examId: string;
     mode: QuizMode;
     subjectId?: string;
+    chapterId?: string;
     topicId?: string;
     difficulty: Difficulty;
   }) => void;
@@ -25,6 +26,7 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
   const [selectedExam, setSelectedExam] = useState<ExamType | null>(null);
   const [selectedMode, setSelectedMode] = useState<QuizMode | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+  const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>('intermediate');
   const [showPreview, setShowPreview] = useState(false);
@@ -39,7 +41,7 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
     {
       id: 'chapter',
       name: 'Chapter-wise',
-      description: 'Practice specific subjects',
+      description: 'Practice specific chapters',
       icon: BookOpen,
     },
     {
@@ -50,7 +52,7 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
     },
   ];
 
-  const steps = ['Exam', 'Mode', 'Subject', 'Topic', 'Difficulty'];
+  const steps = ['Exam', 'Mode', 'Subject', 'Chapter', 'Topic', 'Difficulty'];
   const currentStep = showPreview ? steps.length : step;
 
   useEffect(() => {
@@ -62,7 +64,6 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
   const handleStart = () => {
@@ -70,10 +71,11 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
 
     sounds.complete();
     onStart({
-      examId: selectedExam.id,
+      examId: selectedExam._id,
       mode: selectedMode as QuizMode,
-      subjectId: selectedSubject?.id,
-      topicId: selectedTopic?.id,
+      subjectId: selectedSubject?._id,
+      chapterId: selectedChapter?._id,
+      topicId: selectedTopic?._id,
       difficulty,
     });
   };
@@ -85,10 +87,13 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
       return;
     }
 
-    if (step === 5) {
+    if (step === 6) {
       setStep(getLastStep());
-    } else if (step === 4) {
+    } else if (step === 5) {
       setSelectedTopic(null);
+      setStep(4);
+    } else if (step === 4) {
+      setSelectedChapter(null);
       setStep(3);
     } else if (step === 3) {
       setSelectedSubject(null);
@@ -100,16 +105,16 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
   };
 
   const getLastStep = () => {
-    if (selectedMode === 'topic') return 4;
-    if (selectedMode === 'chapter') return 3;
+    if (selectedMode === 'topic') return 5;
+    if (selectedMode === 'chapter') return 4;
     return 2;
   };
 
   const handleNext = () => {
     sounds.select();
-    if (step === 5 || (selectedMode === 'exam' && step === 2) || 
-        (selectedMode === 'chapter' && step === 3) || 
-        (selectedMode === 'topic' && step === 4)) {
+    if (step === 6 || (selectedMode === 'exam' && step === 2) || 
+        (selectedMode === 'chapter' && step === 4) || 
+        (selectedMode === 'topic' && step === 5)) {
       setShowPreview(true);
     } else {
       setStep(step + 1);
@@ -122,6 +127,7 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
         exam={selectedExam}
         mode={selectedMode}
         subject={selectedSubject?.name}
+        chapter={selectedChapter?.name}
         topic={selectedTopic?.name}
         difficulty={difficulty}
         onStart={handleStart}
@@ -169,11 +175,11 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {exams.map((exam) => (
                 <QuizCard
-                  key={exam.id}
+                  key={exam._id}
                   title={exam.name}
                   description={exam.description}
                   image={exam.image}
-                  selected={selectedExam?.id === exam.id}
+                  selected={selectedExam?._id === exam._id}
                   onClick={() => {
                     sounds.select();
                     setSelectedExam(exam);
@@ -208,12 +214,13 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
                     sounds.select();
                     setSelectedMode(id as QuizMode);
                     if (id === 'exam') {
-                      setStep(5);
+                      setStep(6);
                     } else {
                       setStep(3);
                     }
-                  } }
-                  onMouseEnter={() => sounds.hover()}                 />
+                  }}
+                  onMouseEnter={() => sounds.hover()}
+                />
               ))}
             </div>
           </motion.div>
@@ -232,17 +239,14 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {selectedExam.subjects?.map((subject) => (
                 <QuizCard
-                  key={subject.id}
+                  key={subject._id}
                   title={subject.name}
-                  selected={selectedSubject?.id === subject.id}
+                  description={subject.description}
+                  selected={selectedSubject?._id === subject._id}
                   onClick={() => {
                     sounds.select();
                     setSelectedSubject(subject);
-                    if (selectedMode === 'chapter') {
-                      setStep(5);
-                    } else {
-                      setStep(4);
-                    }
+                    setStep(4);
                   }}
                   onMouseEnter={() => sounds.hover()}
                 />
@@ -259,18 +263,23 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
             exit={{ opacity: 0, x: -20 }}
           >
             <h2 className="text-3xl font-bold mb-8 text-center">
-              Choose Your Topic
+              Choose Your Chapter
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {selectedSubject.topics?.map((topic) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {selectedSubject.chapters?.map((chapter) => (
                 <QuizCard
-                  key={topic.id}
-                  title={topic.name}
-                  selected={selectedTopic?.id === topic.id}
+                  key={chapter._id}
+                  title={chapter.name}
+                  description={chapter.description}
+                  selected={selectedChapter?._id === chapter._id}
                   onClick={() => {
                     sounds.select();
-                    setSelectedTopic(topic);
-                    setStep(5);
+                    setSelectedChapter(chapter);
+                    if (selectedMode === 'chapter') {
+                      setStep(6);
+                    } else {
+                      setStep(5);
+                    }
                   }}
                   onMouseEnter={() => sounds.hover()}
                 />
@@ -279,9 +288,38 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
           </motion.div>
         )}
 
-        {step === 5 && (
+        {step === 5 && selectedChapter && (
           <motion.div
             key="step5"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
+            <h2 className="text-3xl font-bold mb-8 text-center">
+              Choose Your Topic
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {selectedChapter.topics?.map((topic) => (
+                <QuizCard
+                  key={topic._id}
+                  title={topic.name}
+                  description={topic.description}
+                  selected={selectedTopic?._id === topic._id}
+                  onClick={() => {
+                    sounds.select();
+                    setSelectedTopic(topic);
+                    setStep(6);
+                  }}
+                  onMouseEnter={() => sounds.hover()}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {step === 6 && (
+          <motion.div
+            key="step6"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
@@ -291,8 +329,7 @@ export function QuizStepper({ exams, onStart }: QuizStepperProps) {
             </h2>
             <DifficultySelector
               value={difficulty}
-         
-              onChange={(value: Difficulty) => {
+              onChange={(value) => {
                 sounds.select();
                 setDifficulty(value);
                 handleNext();

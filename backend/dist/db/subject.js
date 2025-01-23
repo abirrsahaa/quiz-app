@@ -13,5 +13,4 @@ const SubjectSchema = new mongoose_1.Schema({
     },
     chapters: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Chapter' }]
 });
-const Subject = mongoose_1.models.Subject || (0, mongoose_1.model)('Subject', SubjectSchema);
-exports.default = Subject;
+exports.default = mongoose_1.models.subjects || (0, mongoose_1.model)('subjects', SubjectSchema);

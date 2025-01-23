@@ -8,27 +8,37 @@ export interface Question{
     explanation:string;
 }
 
+export interface Topic {
+  _id: string;
+  name: string;
+  description: string;
+  questions: string[];
+}
+
+export interface Chapter {
+  _id: string;
+  name: string;
+  description: string;
+  topics: Topic[];
+}
+
+export interface Subject {
+  _id: string;
+  name: string;
+  description: string;
+  chapters: Chapter[];
+}
+
 export type ExamType = {
-    id: string;
-    name: string;
-    description: string;
-    image: string;
-    subjects?: Subject[];
-    duration?: number; // in minutes
-    questionCount?: number;
-    difficulty?: 'beginner' | 'intermediate' | 'advanced';
-  };
-  
-  export type Subject = {
-    id: string;
-    name: string;
-    topics?: Topic[];
-  };
-  
-  export type Topic = {
-    id: string;
-    name: string;
-  };
+  _id: string;
+  name: string;
+  description: string;
+  image: string;
+  subjects: Subject[];
+  duration: number;
+  question_count: number;
+  __v?: number;
+};
   
   export type QuizMode = 'exam' | 'chapter' | 'topic';
   

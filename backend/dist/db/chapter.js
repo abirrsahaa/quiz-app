@@ -13,5 +13,4 @@ const ChapterSchema = new mongoose_1.Schema({
     },
     topics: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Topic' }]
 });
-const Chapter = mongoose_1.models.Chapter || (0, mongoose_1.model)('Chapter', ChapterSchema);
-exports.default = Chapter;
+exports.default = mongoose_1.models.chapters || (0, mongoose_1.model)('chapters', ChapterSchema);

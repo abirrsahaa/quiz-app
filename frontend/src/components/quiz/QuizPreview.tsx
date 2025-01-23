@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle,  CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, Brain, Target, Trophy } from 'lucide-react';
 import type { ExamType, QuizMode, Difficulty } from '@/types/quiz';
@@ -8,6 +8,7 @@ type QuizPreviewProps = {
   exam: ExamType;
   mode: QuizMode;
   subject?: string;
+  chapter?: string;
   topic?: string;
   difficulty: Difficulty;
   onStart: () => void;
@@ -18,6 +19,7 @@ export function QuizPreview({
   exam,
   mode,
   subject,
+  chapter,
   topic,
   difficulty,
   onStart,
@@ -27,12 +29,12 @@ export function QuizPreview({
     {
       icon: Clock,
       label: "Duration",
-      value: `${exam.duration || 60} minutes`,
+      value: `${exam.duration} minutes`,
     },
     {
       icon: Brain,
       label: "Questions",
-      value: exam.questionCount || 30,
+      value: exam.question_count,
     },
     {
       icon: Target,
@@ -76,6 +78,7 @@ export function QuizPreview({
             <ul className="space-y-2 text-muted-foreground">
               <li>• Exam: {exam.name}</li>
               {subject && <li>• Subject: {subject}</li>}
+              {chapter && <li>• Chapter: {chapter}</li>}
               {topic && <li>• Topic: {topic}</li>}
             </ul>
           </div>

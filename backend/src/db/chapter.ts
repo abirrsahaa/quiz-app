@@ -22,6 +22,4 @@ const ChapterSchema=new Schema({
     topics:[{type:Schema.Types.ObjectId,ref:'Topic'}]
 })
 
-const Chapter=models.Chapter || model('Chapter',ChapterSchema);
-
-export default Chapter;
+export default models.chapters || model('chapters',ChapterSchema);

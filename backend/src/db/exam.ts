@@ -39,9 +39,7 @@ const ExamSchema=new Schema({
 
 })
 
-const Exam=models.Exam || model('Exam',ExamSchema);
-
-export default Exam;
+export default models.exams || model('exams',ExamSchema);
 
 
 // !question count 

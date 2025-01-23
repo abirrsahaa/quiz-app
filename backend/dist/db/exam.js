@@ -25,8 +25,7 @@ const ExamSchema = new mongoose_1.Schema({
     },
     subjects: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Subject' }]
 });
-const Exam = mongoose_1.models.Exam || (0, mongoose_1.model)('Exam', ExamSchema);
-exports.default = Exam;
+exports.default = mongoose_1.models.exams || (0, mongoose_1.model)('exams', ExamSchema);
 // !question count 
 // subjects[
 // id

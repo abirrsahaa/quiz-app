@@ -1,5 +1,5 @@
 import { Schema, model, models } from 'mongoose';
-import Topic from '../db/topic';
+import topic from '../db/topic';
 import Question from '../db/question';
 
 // Question generation utility
@@ -183,36 +183,34 @@ export function generateQuestionsForTopic(topicName: string, count: number = 20)
 
 // Function to populate questions for multiple topics
 export async function populateQuestions(topics: any[]) {
-    try {
-      for (const topic of topics) {
-        const questions = generateQuestionsForTopic(topic.name);
+  try {
+    for (const currentTopic of topics) {
+      const questions = generateQuestionsForTopic(currentTopic.name);
+      
+      if (questions.length > 0) {
+        const questionsToSave = questions.map(q => ({
+          ...q,
+          topic: currentTopic._id
+        }));
         
-        if (questions.length > 0) {
-          // Create questions with topic reference
-          const questionsToSave = questions.map(q => ({
-            ...q,
-            topic: topic._id
-          }));
-          
-          // Save questions and get their IDs
-          const savedQuestions = await Question.insertMany(questionsToSave);
-          const questionIds = savedQuestions.map(q => q._id);
-          
-          // Update topic with question references
-          await Topic.findByIdAndUpdate(
-            topic._id,
-            { questions: questionIds },
-            { new: true }
-          );
-          
-          console.log(`Populated ${questionIds.length} questions for topic: ${topic.name}`);
-        }
+        const savedQuestions = await Question.insertMany(questionsToSave);
+        const questionIds = savedQuestions.map(q => q._id);
+        
+        await topic.findByIdAndUpdate(  // Changed from Topic to topic
+          currentTopic._id,
+          { questions: questionIds },
+          { new: true }
+        );
+        
+        console.log(`Populated ${questionIds.length} questions for topic: ${currentTopic.name}`);
       }
-    } catch (error) {
-      console.error('Error populating questions:', error);
-      throw error;
     }
+  } catch (error) {
+    console.error('Error populating questions:', error);
+    throw error;
   }
-  
+}
+
+// ...existing code...
   
 

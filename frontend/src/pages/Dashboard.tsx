@@ -13,9 +13,16 @@ import StatCard from '@/components/dashboard/StatCard';
 import MotivationalQuote from '@/components/dashboard/MotivationalQuote';
 import Sidebar from '@/components/dashboard/Sidebar';
 import { UserProfile } from '@/components/dashboard/UserProfile';
+import { useStore } from '@/hooks/zustand';
+
+
+const capitalizeFirstLetter = (string: string): string => {
+  return string ? string.charAt(0).toUpperCase() + string.slice(1) : '';
+};
 
 
 function Dashboard() {
+    const {first_name}= useStore();
     return (
       <div className="flex min-h-screen bg-gray-50">
         <Sidebar />
@@ -23,7 +30,7 @@ function Dashboard() {
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Welcome back, John! 👋</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Welcome back,  {capitalizeFirstLetter(first_name)} 👋</h1>
                 <p className="text-gray-600">Ready to continue your learning journey?</p>
               </div>
               <div className="flex items-center gap-4">

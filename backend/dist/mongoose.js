@@ -15,8 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const connectToMongo = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield mongoose_1.default.connect("mongodb+srv://abir:abir@cluster0.ode8e.mongodb.net/chatapp");
+        const something = yield mongoose_1.default.connect("mongodb+srv://abir:abir@cluster0.ode8e.mongodb.net/chatapp");
         console.log("connected to mongo");
+        console.log("things that i am getting here ", something.models);
+        console.log("the model names are ", something.modelNames());
     }
     catch (error) {
         console.log("there was problem in connecting to mongo", error);

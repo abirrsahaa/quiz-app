@@ -13,5 +13,4 @@ const TopicSchema = new mongoose_1.Schema({
     },
     questions: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Question' }]
 });
-const Topic = mongoose_1.models.Topic || (0, mongoose_1.model)('Topic', TopicSchema);
-exports.default = Topic;
+exports.default = mongoose_1.models.topics || (0, mongoose_1.model)('topics', TopicSchema);

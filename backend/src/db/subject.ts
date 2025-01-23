@@ -21,6 +21,4 @@ const SubjectSchema=new Schema({
     chapters:[{type:Schema.Types.ObjectId,ref:'Chapter'}]
 })
 
-const Subject=models.Subject || model('Subject',SubjectSchema);
-
-export default Subject;
+export default models.subjects || model('subjects',SubjectSchema);
