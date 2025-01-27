@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useStore } from '@/hooks/zustand'
+import { useLocation } from 'react-router-dom'
 
 
 // !frontend additions in ui 
@@ -16,7 +17,23 @@ import { useStore } from '@/hooks/zustand'
   // !dashboards for analytics 
   // !user profile 
 
+  interface QuizParams {
+    examId: string;
+    mode: 'exam' | 'chapter' | 'topic';
+    subjectId?: string;
+    chapterId?: string;
+    topicId?: string;
+    timestamp: number;
+  }
+
 export default function QuizPage() {
+
+  const location =useLocation();
+
+  const quizParams=location.state as QuizParams;
+
+
+
 
     // !idhar mera logic lagega as i am coding with first principles and will eventually scale with each day
 
@@ -28,13 +45,16 @@ export default function QuizPage() {
     });
 
     useEffect(()=>{
+
+      console.log("the quiz params are ",quizParams);
         const ws = new WebSocket("ws://localhost:8080");
         ws.onopen = () => {
             console.log("Connected to server from the client");
             // !init the quiz 
             ws.send(JSON.stringify({
                 type:"START_QUIZ",
-                userId:id
+                userId:id,
+                params:quizParams
             }))
         }
         ws.onclose = () => {

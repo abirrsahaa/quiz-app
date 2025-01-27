@@ -25,6 +25,7 @@ function QuizGenerate() {
       try {
         const response = await fetch("http://localhost:8080/get_edu_data");
         const data = await response.json();
+        console.log("Data fetched:", data);
         setExams(data.edu_info);
       } catch (error) {
         console.log("Error fetching data, using mock data instead:", error);
@@ -64,6 +65,11 @@ function QuizGenerate() {
   };
 
   if (quizStarted && quizParams) {
+    // !idhar hi mereko kuch toh identifiers bhejne hai such that i can determine what to generate questions 
+    // !dekh 3 cases honge 
+    // !either pura exam 
+    // !chapter wise
+    // !ya fir topic wise
     navigate('/quiz', { state: quizParams });
     return null;
   }

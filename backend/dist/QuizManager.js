@@ -18,6 +18,8 @@ const metrics_1 = __importDefault(require("./utils/metrics"));
 const topic_mastery_1 = require("./utils/topic_mastery");
 const questionmetrics_1 = __importDefault(require("./db/questionmetrics"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const quiz_info_1 = __importDefault(require("./db/quiz_info"));
+const user_1 = __importDefault(require("./db/user"));
 class QuizManager {
     constructor() {
         this.QuizList = [];
@@ -52,12 +54,42 @@ class QuizManager {
                 console.log("i am here in this ");
                 // connectToMongo();
                 this.activeQuiz = new Quiz_1.Quiz();
-                // !idhar dekh ak naya quiz generate huya hai make sure tu db mai bhi same bana 
-                // !and figure out every possible data ka jo answer araha hai uska state mantain karna hai idhar matlab alag se banana hai ak question ka collection jisme dikhayega konsa answer user ne select kiya tha 
-                // call a function which will populate the questions in the quiz
-                console.log("the question here is ", this.activeQuiz.questions);
+                const userObjectId = new mongoose_1.default.Types.ObjectId(data.userId);
+                const user_info = yield user_1.default.findById(userObjectId);
+                const naya_quiz = new quiz_info_1.default({
+                    user_info: userObjectId
+                });
+                yield naya_quiz.save();
+                yield user_1.default.findByIdAndUpdate(userObjectId, {
+                    $push: {
+                        quiz_attempted: {
+                            $each: [naya_quiz._id],
+                            $sort: {
+                                date: -1
+                            }
+                        }
+                    }
+                }, { new: true });
+                console.log("the quiz info is ", naya_quiz);
+                this.activeQuiz.change_userId(data.userId);
+                // !the fact that here we will be creating the cases of the 3 types of quiz generation 
+                this.activeQuiz.change_mode(data.params.mode);
+                if (data.params.mode == "exam") {
+                    this.activeQuiz.change_examId(data.params.examId);
+                }
+                if (data.params.mode == "chapter") {
+                    this.activeQuiz.change_examId(data.params.examId);
+                    this.activeQuiz.change_subject(data.params.subjectId);
+                    this.activeQuiz.change_chapter(data.params.chapterId);
+                }
+                if (data.params.mode == "topic") {
+                    this.activeQuiz.change_examId(data.params.examId);
+                    this.activeQuiz.change_subject(data.params.subjectId);
+                    this.activeQuiz.change_chapter(data.params.chapterId);
+                    this.activeQuiz.change_topic(data.params.topicId);
+                }
                 yield this.activeQuiz.populateQuestions(data.userId);
-                console.log("the question here is after ", this.activeQuiz.questions);
+                // console.log("the thisquestion here is after ",this.activeQuiz.questions);
                 if (this.activeQuiz) {
                     const question = this.activeQuiz.startQuiz();
                     console.log("the question received here is of the format", question);
@@ -129,6 +161,14 @@ class QuizManager {
                     else {
                         question_db.incorrect++;
                     }
+                    const user = yield user_1.default.findById(userObjectId);
+                    yield quiz_info_1.default.findByIdAndUpdate(user.quiz_attempted[0], {
+                        $push: {
+                            question_attempted: {
+                                $each: [question_db._id],
+                            }
+                        }
+                    }, { new: true });
                     // !one important thing here all questions mai current question inlcude nahi kar rha hi 
                     yield (0, metrics_1.default)(question_db, this.activeQuiz.questions);
                     const masteryChecker = new topic_mastery_1.TopicMasteryDetermination();

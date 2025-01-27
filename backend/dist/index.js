@@ -434,7 +434,6 @@ app.get("/exam", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 // @ts-ignore
 app.get("/get_edu_data", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
     const subjects = yield subject_1.default.find();
     const exams = yield exam_1.default.find();
     const chapters = yield chapter_1.default.find();
@@ -455,9 +454,9 @@ app.get("/get_edu_data", (req, res) => __awaiter(void 0, void 0, void 0, functio
         });
         // Debug each level
         console.log('Exam count:', exams.length);
-        console.log('First exam subjects:', (_b = (_a = exams[0]) === null || _a === void 0 ? void 0 : _a.subjects) === null || _b === void 0 ? void 0 : _b.length);
-        console.log('First subject chapters:', (_e = (_d = (_c = exams[0]) === null || _c === void 0 ? void 0 : _c.subjects[0]) === null || _d === void 0 ? void 0 : _d.chapters) === null || _e === void 0 ? void 0 : _e.length);
-        console.log('First chapter topics:', (_j = (_h = (_g = (_f = exams[0]) === null || _f === void 0 ? void 0 : _f.subjects[0]) === null || _g === void 0 ? void 0 : _g.chapters[0]) === null || _h === void 0 ? void 0 : _h.topics) === null || _j === void 0 ? void 0 : _j.length);
+        //   console.log('First exam subjects:', exams[0]?.subjects?.length);
+        //   console.log('First subject chapters:', exams[0]?.subjects[0]?.chapters?.length);
+        //   console.log('First chapter topics:', exams[0]?.subjects[0]?.chapters[0]?.topics?.length);
         return res.status(200).json({ edu_info: exams });
     }
     catch (error) {

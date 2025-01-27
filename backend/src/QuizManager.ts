@@ -8,6 +8,8 @@ import UpdateMetrics from "./utils/metrics";
 import { TopicMasteryDetermination } from "./utils/topic_mastery";
 import QuestionAttempted from "./db/questionmetrics";
 import mongoose from "mongoose";
+import QuizInformation from "./db/quiz_info";
+import User from "./db/user";
 
 
 export class QuizManager{
@@ -56,12 +58,50 @@ export class QuizManager{
                 console.log("i am here in this ");
                 // connectToMongo();
                 this.activeQuiz=new Quiz();
-                // !idhar dekh ak naya quiz generate huya hai make sure tu db mai bhi same bana 
-                // !and figure out every possible data ka jo answer araha hai uska state mantain karna hai idhar matlab alag se banana hai ak question ka collection jisme dikhayega konsa answer user ne select kiya tha 
-                // call a function which will populate the questions in the quiz
-                console.log("the question here is ",this.activeQuiz.questions);
+                const userObjectId = new mongoose.Types.ObjectId(data.userId);
+                const user_info=await User.findById(userObjectId);
+                const naya_quiz=new QuizInformation({
+                    user_info:userObjectId
+                });
+                await naya_quiz.save();
+
+                await User.findByIdAndUpdate(userObjectId,{
+                    $push:{
+                        quiz_attempted:{
+                            $each:[naya_quiz._id],
+                            $sort:{
+                                date:-1
+                            }
+                        }
+                    }
+                },
+            {new:true});
+
+                console.log("the quiz info is ",naya_quiz);
+             
+
+                this.activeQuiz.change_userId(data.userId);
+
+                // !the fact that here we will be creating the cases of the 3 types of quiz generation 
+
+
+                this.activeQuiz.change_mode(data.params.mode);
+                if(data.params.mode=="exam"){
+                    this.activeQuiz.change_examId(data.params.examId);
+                }
+                if(data.params.mode=="chapter"){
+                    this.activeQuiz.change_examId(data.params.examId);
+                    this.activeQuiz.change_subject(data.params.subjectId);
+                    this.activeQuiz.change_chapter(data.params.chapterId);
+                }
+                if(data.params.mode=="topic"){
+                    this.activeQuiz.change_examId(data.params.examId);
+                    this.activeQuiz.change_subject(data.params.subjectId);
+                    this.activeQuiz.change_chapter(data.params.chapterId);
+                    this.activeQuiz.change_topic(data.params.topicId);
+                }
                 await this.activeQuiz.populateQuestions(data.userId);
-                console.log("the question here is after ",this.activeQuiz.questions);
+                // console.log("the thisquestion here is after ",this.activeQuiz.questions);
                 if(this.activeQuiz){
                     const question=this.activeQuiz.startQuiz();
                     console.log("the question received here is of the format",question);
@@ -134,6 +174,20 @@ export class QuizManager{
                         question_db.incorrect++;
                     
                     }
+
+
+                    const user=await User.findById(userObjectId);
+                    await QuizInformation.findByIdAndUpdate(user.quiz_attempted[0],{
+                        $push:{
+                            question_attempted:{
+                                $each:[question_db._id],
+                            }
+                        }
+                    },
+                    {new:true});
+
+
+
 
                     // !one important thing here all questions mai current question inlcude nahi kar rha hi 
 

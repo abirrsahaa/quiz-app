@@ -490,12 +490,9 @@ app.get("/get_edu_data",async(req,res)=>{
           }]
         });
     
-      // Debug each level
+
       console.log('Exam count:', exams.length);
-      console.log('First exam subjects:', exams[0]?.subjects?.length);
-      console.log('First subject chapters:', exams[0]?.subjects[0]?.chapters?.length);
-      console.log('First chapter topics:', exams[0]?.subjects[0]?.chapters[0]?.topics?.length);
-    
+
 
       return res.status(200).json({edu_info:exams});
         
